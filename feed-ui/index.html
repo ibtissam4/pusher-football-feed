@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Football Feed</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+</head>
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mouse0270-bootstrap-notify/3.1.7/bootstrap-notify.js" integrity="sha256-ZfyZUBGHlJunePNMsBqgGX3xHMv4kaCZ5Hj+8Txwd9c="
+        crossorigin="anonymous"></script>
+    <script src="https://js.pusher.com/4.2/pusher.min.js"></script>
+
+    <script>
+        const pusher = new Pusher('PUSHER_KEY', {
+          cluster: 'PUSHER_CLUSTER'
+        });
+
+        const channel = pusher.subscribe('match');
+
+        channel.bind('goal', function(data) {
+            let message = data.Player + ' scored!';
+            if (data.OwnGoal) {
+                message += ' (OG)';
+            }
+
+            $.notify({
+                title: message,
+                message: `${data.HomeTeam} ${data.HomeScore} - ${data.AwayScore} ${data.AwayTeam}`
+            }, {
+                type: 'success',
+                allow_dismiss: true,
+                newest_on_top: false,
+            });
+        });
+
+        channel.bind('card', function(data) {
+            let message;
+            let type;
+            if (data.Card === 'yellow') {
+                message = `Yellow card for ${data.Player} (${data.Team})`;
+                type = 'warning';
+            } else {
+                message = `Red card for ${data.Player} (${data.Team})`;
+                type = 'danger';
+            }
+            $.notify({
+                message: message
+            }, {
+                type: type,
+                allow_dismiss: true,
+                newest_on_top: false,
+            });
+
+        });
+
+        channel.bind('match', function(data) {
+            let message;
+            if (data.Event === 'finished') {
+                message = 'Full Time';
+            } else if (data.Event === 'second half') {
+                message = 'Half Time';
+            } else if (data.Event === 'extra time') {
+                message = 'Extra Time';
+            }
+
+            $.notify({
+                title: message,
+                message: `${data.HomeTeam} ${data.HomeScore} - ${data.AwayScore} ${data.AwayTeam}`
+            }, {
+                type: 'info',
+                allow_dismiss: true,
+                newest_on_top: false,
+            });
+        });
+    </script>
+</body>
+</html>
