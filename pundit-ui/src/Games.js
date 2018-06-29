@@ -3,6 +3,11 @@ import { Container, Segment, Button } from 'semantic-ui-react';
 import uuid from 'uuid/v4';
 import StartedGame from './StartedGame';
 import UnstartedGame from './UnstartedGame';
+import axios from 'axios';
+
+const axiosClient = axios.create({
+    baseURL: 'http://localhost:8080'
+});
 
 export default class Games extends React.Component {
     state = {
@@ -53,6 +58,17 @@ export default class Games extends React.Component {
             if (game.id === gameId) {
                 game[goalFor].score++;
             }
+
+            axiosClient.post('/goal', {
+                player: game[team].players[player],
+                forTeam: goalFor,
+                homeTeam: game.home.team,
+                awayTeam: game.away.team,
+                homeScore: game.home.score,
+                awayScore: game.away.score,
+                ownGoal: team !== goalFor
+            });
+
             return game;
         });
         this.setState({
@@ -66,6 +82,13 @@ export default class Games extends React.Component {
             if (game.id === gameId) {
                 game[team].cards[player] = card;
             }
+
+            axiosClient.post('/card', {
+                team: game[team].team,
+                player: game[team].players[player],
+                card
+            });
+
             return game;
         });
         this.setState({
@@ -79,6 +102,15 @@ export default class Games extends React.Component {
             if (game.id === gameId) {
                 game.state = event;
             }
+
+            axiosClient.post('/match', {
+                event,
+                homeTeam: game.home.team,
+                awayTeam: game.away.team,
+                homeScore: game.home.score,
+                awayScore: game.away.score
+            });
+
             return game;
         });
         this.setState({
