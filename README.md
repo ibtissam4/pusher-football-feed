@@ -1,6 +1,8 @@
-# Create a Real Time Football Results Feed with Pusher and Go
+# Create a realtime football results feed with Pusher and Go
 
 This is an example of using Pusher Channels to create a real-time feed of events in React and Go.
+
+This repository is discussed at [Create a realtime football results feed with Pusher and Go](https://pusher.com/tutorials/football-feed-go-react).
 
 ## Getting Started
 
